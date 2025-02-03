@@ -18,6 +18,7 @@ class naorisProtocol {
   }
 
   parseProxy(proxyString) {
+    if (!proxyString) return null;
     try {
       const url = new URL(proxyString);
       return {
@@ -28,7 +29,7 @@ class naorisProtocol {
       };
     } catch (error) {
       console.error("Invalid proxy format:", error);
-      return null;
+      return {};
     }
   }
 
@@ -50,7 +51,7 @@ class naorisProtocol {
       customConfig: {},
       disableXvfb: false,
       ignoreAllFlags: false,
-      proxy: this.proxy || null,
+      ...(this.proxy ? { proxy: this.proxy } : {}),
     });
 
     try {
@@ -87,38 +88,6 @@ class naorisProtocol {
     }
   }
 
-  async checkIP() {
-    console.log(this.proxy.host);
-    const { browser, page } = await connect({
-      headless: true,
-      turnstile: true,
-      args: [],
-      customConfig: {},
-      disableXvfb: false,
-      ignoreAllFlags: false,
-      proxy: this.proxy || null,
-    });
-
-    try {
-      await page.goto("https://api.ipify.org?format=json", {
-        waitUntil: "networkidle2",
-      });
-      const ip = await page.evaluate(() => {
-        return fetch("https://api.ipify.org?format=json")
-          .then((response) => response.json())
-          .then((data) => data.ip);
-      });
-
-      console.log(`IP Address: ${ip}`);
-      return ip;
-    } catch (error) {
-      console.error("Failed to check IP:", error);
-      return null;
-    } finally {
-      await browser.close();
-    }
-  }
-
   async getToken() {
     logMessage(this.currentNum, this.total, "Trying get token", "process");
     const url = "https://naorisprotocol.network/claim-api/auth/generateToken";
@@ -129,7 +98,7 @@ class naorisProtocol {
       customConfig: {},
       disableXvfb: false,
       ignoreAllFlags: false,
-      proxy: this.proxy || null,
+      ...(this.proxy ? { proxy: this.proxy } : {}),
     });
 
     try {
