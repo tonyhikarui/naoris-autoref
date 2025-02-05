@@ -16,7 +16,7 @@ async function main() {
   `)
   );
 
-  const refCode = await prompt(chalk.yellow("Enter Referral Code: "));
+  const refCode = "89jchaWs1W3P58fI";// await prompt(chalk.yellow("Enter Referral Code: "));
   const count = parseInt(await prompt(chalk.yellow("How many do you want? ")));
   const proxiesLoaded = loadProxies();
   if (!proxiesLoaded) {
@@ -46,19 +46,28 @@ async function main() {
         const account = await naoris.registerWallet(encryptWallet);
         if (account) {
           logMessage(i + 1, count, "Register Account Success", "success");
+          logMessage(i + 1, count, `Trying get token`, "process");
           const token = await naoris.getToken();
+          if (!token) {
+            console.error("Failed to retrieve token. Token is undefined.");
+          } else {
+            console.log("Token received:", token);  // Verify token is received
+          }
           logMessage(i + 1, count, `Get Token Done`, "success");
           const wallet = naoris.getWallet();
           successful++;
-          accountNaoris.write(`Adress : ${wallet.address}\n`);
-          accountNaoris.write(`Mnomic Phrase: ${wallet.mnemonic.phrase}\n`);
+          accountNaoris.write(`Address: ${wallet.address}\n`);
+          accountNaoris.write(`Mnemonic Phrase: ${wallet.mnemonic.phrase}\n`);
           accountNaoris.write("-".repeat(85) + "\n");
 
+          // Update accounts array and save to JSON immediately
           accounts.push({
             walletAddress: wallet.address,
-            token: token,
+            token: token,  // Ensure token is added here
             deviceHash: Number(hashId),
           });
+          fs.writeFileSync("accounts.json", JSON.stringify(accounts, null, 2));
+          console.log("Account saved with token:", accounts[accounts.length - 1]);  // Verify account is saved with token
         } else {
           logMessage(i + 1, count, "Register Account Failed", "error");
         }
@@ -68,13 +77,11 @@ async function main() {
     }
   } finally {
     accountNaoris.end();
-    fs.writeFileSync("accounts.json", JSON.stringify(accounts, null, 2));
-
-    console.log(chalk.magenta("\n[*] Dono bang!"));
+    console.log(chalk.magenta("\n[*] Done!"));
     console.log(
-      chalk.green(`[*] Account dono ${successful} dari ${count} akun`)
+      chalk.green(`[*] Successfully created ${successful} out of ${count} accounts`)
     );
-    console.log(chalk.magenta("[*] Result in accounts.txt and accounts.json"));
+    console.log(chalk.magenta("[*] Results saved in accounts.txt and accounts.json"));
     rl.close();
   }
 }

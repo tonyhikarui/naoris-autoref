@@ -65,6 +65,8 @@ class naorisProtocol {
       );
 
       await page.goto(url, { waitUntil: "networkidle2" });
+      console.log("Navigated to URL:", url);  // Debug log
+
       const response = await page.evaluate(
         async (url, loginData) => {
           const fetchResponse = await fetch(url, {
@@ -74,14 +76,18 @@ class naorisProtocol {
             },
             body: JSON.stringify(loginData),
           });
-          return fetchResponse.json();
+          const jsonResponse = await fetchResponse.json();
+          console.log("Fetch response:", jsonResponse);  // Debug log
+          return jsonResponse;
         },
         url,
         { wallet_address: encryptedWallet, referrer_code: this.refCode }
       );
 
+      console.log("Register wallet response:", response);  // Debug log
       return response;
     } catch (error) {
+      console.error("Error during wallet registration:", error);  // Debug log
       return null;
     } finally {
       await browser.close();
@@ -112,6 +118,8 @@ class naorisProtocol {
       );
 
       await page.goto(url, { waitUntil: "networkidle2" });
+      console.log("Navigated to URL:", url);  // Debug log
+
       const response = await page.evaluate(
         async (url, loginData) => {
           const fetchResponse = await fetch(url, {
@@ -121,14 +129,18 @@ class naorisProtocol {
             },
             body: JSON.stringify(loginData),
           });
-          return fetchResponse.json();
+          const jsonResponse = await fetchResponse.json();
+          console.log("Fetch response:", jsonResponse);  // Debug log
+          return jsonResponse;
         },
         url,
         { wallet_address: this.wallet.address }
       );
 
+      console.log("Token response:", response);  // Debug log
       return response.token;
     } catch (error) {
+      console.error("Error during token retrieval:", error);  // Debug log
       return null;
     } finally {
       await browser.close();
